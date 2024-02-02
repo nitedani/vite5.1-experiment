@@ -1,8 +1,6 @@
 export { renderPage };
 export { initializeRenderPage };
 
-import fs from "fs/promises";
-
 function initializeRenderPage(vite) {
   global.vite = vite;
 }

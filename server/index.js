@@ -1,5 +1,5 @@
 import express from "express";
-import { renderPage } from "../ssr.js";
+import { renderPage } from "./ssr.js";
 
 const app = express();
 

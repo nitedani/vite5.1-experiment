@@ -1,7 +1,9 @@
 {
 	"type": "module",
 	"scripts": {
-		"dev": "node start.js"
+		"dev": "npm run new",
+		"new": "node start-new.js",
+		"old": "node start-old.js"
 	},
 	"dependencies": {
 		"@vitejs/plugin-react": "^4.2.1",

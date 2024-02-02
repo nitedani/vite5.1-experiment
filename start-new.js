@@ -2,7 +2,7 @@ import { createServer, createViteRuntime } from "vite";
 import http from "http";
 import util from "util";
 import react from "@vitejs/plugin-react";
-import { initializeRenderPage } from "./ssr.js";
+import { initializeRenderPage } from "./server/ssr.js";
 
 start();
 
@@ -14,11 +14,14 @@ async function start() {
       react(),
       {
         handleHotUpdate() {
+          // I need to run this only on updates of "./server/index.js"
+          // right now it is also called on updates for "./src/App.jsx"
           closeAllServers();
         },
       },
     ],
   });
+
   initializeRenderPage(vite);
   removeViteMiddlewares(vite);
   patchHttp(vite);
