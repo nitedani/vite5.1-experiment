@@ -7,41 +7,26 @@ import { initializeRenderPage } from "./server/ssr.js";
 start();
 
 async function start() {
-  const entry = "./server/index.js";
   const vite = await createServer({
     appType: "custom",
     server: { middlewareMode: true },
     plugins: [
       react(),
       {
-        transform(code, id) {
-          if (id === resolvedEntry?.id) {
-            return (
-              code +
-              `
-              if (import.meta.hot) {
-                import.meta.hot.on("vite:beforeFullReload", async () => {
-                  console.log("vite:beforeFullReload")
-                  await global.closeAllServers();
-                });
-              }
-              `
-            );
-          }
+        handleHotUpdate() {
+          // I need to run this only on updates of "./server/index.js"
+          // right now it is also called on updates for "./src/App.jsx"
+          closeAllServers();
         },
       },
     ],
-  });
-
-  const resolvedEntry = await vite.pluginContainer.resolveId(entry, undefined, {
-    ssr: true,
   });
 
   initializeRenderPage(vite);
   removeViteMiddlewares(vite);
   patchHttp(vite);
   const runtime = await createViteRuntime(vite);
-  runtime.executeEntrypoint(entry);
+  runtime.executeEntrypoint("./server/index.js");
 }
 
 let httpServers = [];
@@ -73,7 +58,6 @@ function patchHttp(vite) {
   };
 }
 
-global.closeAllServers = closeAllServers;
 async function closeAllServers() {
   console.log("Closing all http servers");
   const promise = Promise.all([
