@@ -36,7 +36,7 @@ async function start() {
 
   let rpc;
   let worker;
-  let entryDeps;
+
   async function restartWorker() {
     if (worker) {
       await worker.terminate();
