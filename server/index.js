@@ -8,7 +8,7 @@ app.get("/api", (req, res) => {
 });
 
 app.get("*", async (req, res) => {
-  const httpResponse = await renderPage(req);
+  const httpResponse = await renderPage();
   const { statusCode, headers } = httpResponse;
   headers.forEach(([name, value]) => res.setHeader(name, value));
   res.status(statusCode);
