@@ -73,7 +73,7 @@ async function start() {
       vite.moduleGraph
     );
     vite.moduleGraph.invalidateModule = (mod, ...rest) => {
-      if (mod.id) {
+      if (mod.id && !entryDeps.has(mod.id)) {
         rpc.deleteByModuleId(mod.id);
       }
       return originalInvalidateModule(mod, ...rest);
