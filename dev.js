@@ -43,7 +43,6 @@ async function start() {
     }
 
     worker = new Worker(workerPath, { env: SHARE_ENV });
-    entryDeps = new Set();
 
     rpc = createBirpc(
       {
