@@ -12,6 +12,17 @@ const rpc = createBirpc(
     start,
     deleteByModuleId: (mod) => runtime.moduleCache.deleteByModuleId(mod),
     invalidateDepTree: (mods) => {
+      const importers = new Set(mods);
+      for (let importer of importers) {
+        importer = runtime.moduleCache.get(importer);
+        for (const importerInner of importer.importers) {
+          importers.add(importerInner);
+        }
+      }
+
+      if (Array.from(importers).some((i) => i.includes("virtual:vike"))) {
+        return false;
+      }
       const shouldRestart = mods.some(
         (m) => runtime.moduleCache.get(m).evaluated
       );
