@@ -3,6 +3,7 @@ import http from "http";
 import { Readable } from "stream";
 import { ESModulesRunner, ViteRuntime } from "vite/runtime";
 import { parentPort } from "worker_threads";
+import { stringify, parse } from "devalue";
 
 let runtime;
 
@@ -14,8 +15,8 @@ const rpc = createBirpc(
   {
     post: (data) => parentPort.postMessage(data),
     on: (data) => parentPort.on("message", data),
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v),
+    serialize: (v) => stringify(v),
+    deserialize: (v) => parse(v),
   }
 );
 
@@ -25,7 +26,7 @@ async function start(root, entry, httpPort, globalObject) {
   globalObject.viteDevServer.transformIndexHtml = rpc.transformIndexHtml;
   globalObject.viteDevServer.moduleGraph = {
     resolveUrl: rpc.moduleGraphResolveUrl,
-    getModuleById: () => null,
+    getModuleById: rpc.moduleGraphGetModuleById,
   };
   global._vike ??= {};
   global._vike["globalContext.ts"] = globalObject;

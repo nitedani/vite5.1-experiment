@@ -1,0 +1,22 @@
+diff --git a/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js b/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js
+index 0639ba92628c4cda6195b4dc6816f043b5523130..132893b4319eab6aa3f52cd33b87071070cdf6e3 100644
+--- a/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js
++++ b/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js
+@@ -10,7 +10,7 @@ async function retrieveAssetsDev(clientDependencies, viteDevServer) {
+         const { moduleGraph } = viteDevServer;
+         const [_, graphId] = await moduleGraph.resolveUrl(id);
+         assert(graphId, { id });
+-        const mod = moduleGraph.getModuleById(graphId);
++        const mod = await moduleGraph.getModuleById(graphId);
+         if (!mod) {
+             /* Not sure when the assertion fails. So let's just remove it for now.
+              *  - https://github.com/vikejs/vike/issues/391
+@@ -54,7 +54,7 @@ function collectCss(mod, styleUrls, visitedModules, importer) {
+         logModule(mod)
+         //*/
+     }
+-    mod.importedModules.forEach((dep) => {
++    mod.importedModules?.forEach((dep) => {
+         collectCss(dep, styleUrls, visitedModules, mod);
+     });
+ }

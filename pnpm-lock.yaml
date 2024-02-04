@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  vike@0.4.160:
+    hash: rnkpiozbos3vqi6nzoiejfwipa
+    path: patches/vike@0.4.160.patch
+
 dependencies:
   '@vitejs/plugin-react':
     specifier: ^4.2.1
@@ -11,6 +16,9 @@ dependencies:
   birpc:
     specifier: ^0.2.15
     version: 0.2.15
+  devalue:
+    specifier: ^4.3.2
+    version: 4.3.2
   express:
     specifier: ^4.18.2
     version: 4.18.2
@@ -28,7 +36,7 @@ dependencies:
     version: 18.2.0(react@18.2.0)
   vike:
     specifier: ^0.4.160
-    version: 0.4.160(vite@5.1.0-beta.6)
+    version: 0.4.160(patch_hash=rnkpiozbos3vqi6nzoiejfwipa)(vite@5.1.0-beta.6)
   vike-react:
     specifier: ^0.4.4
     version: 0.4.4(react-dom@18.2.0)(react@18.2.0)(vike@0.4.160)(vite@5.1.0-beta.6)
@@ -878,6 +886,10 @@ packages:
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
     dev: false
 
+  /devalue@4.3.2:
+    resolution: {integrity: sha512-KqFl6pOgOW+Y6wJgu80rHpo2/3H07vr8ntR9rkkFIRETewbf5GaYYcakYfiKz89K+sLsuPkQIZaXDMjUObZwWg==}
+    dev: false
+
   /ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
@@ -1591,11 +1603,11 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-streaming: 0.3.20(react-dom@18.2.0)(react@18.2.0)
-      vike: 0.4.160(vite@5.1.0-beta.6)
+      vike: 0.4.160(patch_hash=rnkpiozbos3vqi6nzoiejfwipa)(vite@5.1.0-beta.6)
       vite: 5.1.0-beta.6
     dev: false
 
-  /vike@0.4.160(vite@5.1.0-beta.6):
+  /vike@0.4.160(patch_hash=rnkpiozbos3vqi6nzoiejfwipa)(vite@5.1.0-beta.6):
     resolution: {integrity: sha512-sC+MR1gkY/wgPSbVOlc05PF429CSja3Cc5Ps7+vgccsIH5fhRTm8gS6TwmEK130stK0xauiS2hK9T7BvFTv5rA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
@@ -1620,6 +1632,7 @@ packages:
       source-map-support: 0.5.21
       vite: 5.1.0-beta.6
     dev: false
+    patched: true
 
   /vite@5.1.0-beta.6:
     resolution: {integrity: sha512-Tnham+O97w9GAQfeYyh1wZF2iePQdr/MgU+8k23O8aa+DtUbAPTmg09CsFgIi4eMta2utRa0pOjSqtYIMcUKbQ==}

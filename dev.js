@@ -4,6 +4,7 @@ import http from "http";
 import { createServer } from "vite";
 import { SHARE_ENV, Worker } from "worker_threads";
 import vike from "vike/plugin";
+import { stringify, parse } from "devalue";
 
 const entryPath = "./server/index.js";
 const workerPath = "./worker.js";
@@ -53,6 +54,9 @@ async function start() {
         moduleGraphResolveUrl(url) {
           return vite.moduleGraph.resolveUrl(url);
         },
+        moduleGraphGetModuleById(id) {
+          return removeFunctions(vite.moduleGraph.getModuleById(id));
+        },
         transformIndexHtml(url, html, originalUrl) {
           return vite.transformIndexHtml(url, html, originalUrl);
         },
@@ -60,8 +64,8 @@ async function start() {
       {
         post: (data) => worker.postMessage(data),
         on: (data) => worker.on("message", data),
-        serialize: (v) => JSON.stringify(v),
-        deserialize: (v) => JSON.parse(v),
+        serialize: (v) => stringify(v),
+        deserialize: (v) => parse(v),
       }
     );
 
@@ -101,16 +105,33 @@ function removeFunctions(obj) {
     }
     seenObjects.add(currentObj);
 
-    let newObj = Array.isArray(currentObj) ? [] : {};
-    for (let key in currentObj) {
-      if (Object.hasOwn(currentObj, key)) {
-        let value = currentObj[key];
-        if (typeof value === "function") {
-          continue;
-        } else if (typeof value === "object") {
-          value = helper(value);
+    let newObj;
+    if (currentObj instanceof Set) {
+      newObj = new Set();
+      for (let value of currentObj) {
+        if (typeof value !== "function") {
+          newObj.add(helper(value));
         }
-        newObj[key] = value;
+      }
+    } else if (currentObj instanceof Map) {
+      newObj = new Map();
+      for (let [key, value] of currentObj) {
+        if (typeof value !== "function") {
+          newObj.set(key, helper(value));
+        }
+      }
+    } else {
+      newObj = Array.isArray(currentObj) ? [] : {};
+      for (let key in currentObj) {
+        if (Object.hasOwn(currentObj, key)) {
+          let value = currentObj[key];
+          if (typeof value === "function") {
+            continue;
+          } else if (typeof value === "object") {
+            value = helper(value);
+          }
+          newObj[key] = value;
+        }
       }
     }
     return newObj;
