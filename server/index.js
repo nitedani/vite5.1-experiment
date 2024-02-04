@@ -1,5 +1,5 @@
 import express from "express";
-import { renderPage } from "./ssr.js";
+import { renderPage } from "./renderPage";
 
 const app = express();
 
@@ -7,12 +7,12 @@ app.get("/api", (req, res) => {
   res.send("Hello from express api!");
 });
 
-app.get("*", async (req, res, next) => {
-  const html = await renderPage(req.url);
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/html");
-  res.write(html);
-  res.end();
+app.get("*", async (req, res) => {
+  const httpResponse = await renderPage(req);
+  const { statusCode, headers } = httpResponse;
+  headers.forEach(([name, value]) => res.setHeader(name, value));
+  res.status(statusCode);
+  httpResponse.pipe(res);
 });
 
 app.listen(3000, () => {
