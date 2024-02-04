@@ -4,8 +4,13 @@ import { Readable } from "stream";
 import { ESModulesRunner, ViteRuntime } from "vite/runtime";
 import { parentPort } from "worker_threads";
 
+let runtime;
+
 const rpc = createBirpc(
-  { start },
+  {
+    start,
+    deleteByModuleId: (mod) => runtime.moduleCache.deleteByModuleId(mod),
+  },
   {
     post: (data) => parentPort.postMessage(data),
     on: (data) => parentPort.on("message", data),
@@ -26,7 +31,7 @@ async function start(root, entry, httpPort, globalObject) {
   global._vike["globalContext.ts"] = globalObject;
 
   patchHttp(httpPort);
-  const runtime = new ViteRuntime(
+  runtime = new ViteRuntime(
     {
       fetchModule: rpc.fetchModule,
       root,

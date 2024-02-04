@@ -65,6 +65,15 @@ async function start() {
       }
     );
 
+    const originalInvalidateModule = vite.moduleGraph.invalidateModule.bind(
+      vite.moduleGraph
+    );
+    vite.moduleGraph.invalidateModule = (mod, ...rest) => {
+      if (mod.id) {
+        rpc.deleteByModuleId(mod.id);
+      }
+      return originalInvalidateModule(mod, ...rest);
+    };
     const globalObjectOriginal = global._vike["globalContext.ts"];
     globalObjectOriginal.viteDevServer.config.configVikePromise =
       await globalObjectOriginal.viteDevServer.config.configVikePromise;
