@@ -15,6 +15,11 @@ app.get("*", async (req, res) => {
     userAgent: req.headers["user-agent"],
   };
   const { httpResponse } = await renderPage(pageContextInit);
+  if (!httpResponse) {
+    // Why is this needed ?
+    res.send();
+    return;
+  }
   const { statusCode, headers } = httpResponse;
   headers.forEach(([name, value]) => res.setHeader(name, value));
   res.status(statusCode);
