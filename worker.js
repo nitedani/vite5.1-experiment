@@ -1,5 +1,4 @@
 import { createBirpc } from "birpc";
-import { parse, stringify } from "devalue";
 import http from "http";
 import { Readable } from "stream";
 import { ESModulesRunner, ViteRuntime } from "vite/runtime";
@@ -10,14 +9,13 @@ const rpc = createBirpc(
   {
     post: (data) => parentPort.postMessage(data),
     on: (data) => parentPort.on("message", data),
-    serialize: (v) => stringify(v),
-    deserialize: (v) => parse(v),
+    serialize: (v) => JSON.stringify(v),
+    deserialize: (v) => JSON.parse(v),
   }
 );
 
-async function start(root, entry, httpPort, globalObjectStr) {
+async function start(root, entry, httpPort, globalObject) {
   console.log(`Loading server entry ${entry}`);
-  const globalObject = parse(globalObjectStr);
   globalObject.viteDevServer.ssrLoadModule = (id) => runtime.executeUrl(id);
   globalObject.viteDevServer.transformIndexHtml = rpc.transformIndexHtml;
   globalObject.viteDevServer.moduleGraph = {

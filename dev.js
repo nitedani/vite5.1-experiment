@@ -4,7 +4,6 @@ import http from "http";
 import { createServer } from "vite";
 import { SHARE_ENV, Worker } from "worker_threads";
 import vike from "vike/plugin";
-import { stringify, parse } from "devalue";
 
 const entryPath = "./server/index.js";
 const workerPath = "./worker.js";
@@ -61,8 +60,8 @@ async function start() {
       {
         post: (data) => worker.postMessage(data),
         on: (data) => worker.on("message", data),
-        serialize: (v) => stringify(v),
-        deserialize: (v) => parse(v),
+        serialize: (v) => JSON.stringify(v),
+        deserialize: (v) => JSON.parse(v),
       }
     );
 
@@ -74,37 +73,39 @@ async function start() {
       viteDevServer: removeFunctions(viteDevServer),
       viteConfig: removeFunctions(viteConfig),
     };
-    await rpc.start(vite.config.root, entryPath, httpPort, stringify(cleaned));
+    await rpc.start(vite.config.root, entryPath, httpPort, cleaned);
   }
 
   restartWorker();
 }
 
-function removeFunctions(object, visited = new WeakSet()) {
-  if (visited.has(object)) {
-    return;
-  }
-  if (object === null || typeof object === "string") {
-    return object;
-  }
-  visited.add(object);
-  const output = {};
-  Object.keys(object).forEach((key) => {
-    if (object[key] !== undefined && typeof object[key] !== "function") {
-      if (typeof object[key] === "object") {
-        if (Array.isArray(object[key])) {
-          output[key] = [];
-          for (const e of object[key]) {
-            output[key].push(removeFunctions(e, visited));
-          }
-        } else {
-          const value = removeFunctions(object[key], visited);
-          output[key] = value;
+function removeFunctions(obj) {
+  const seenObjects = new WeakSet();
+
+  function helper(currentObj) {
+    if (currentObj === null || typeof currentObj !== "object") {
+      return currentObj;
+    }
+
+    if (seenObjects.has(currentObj)) {
+      return;
+    }
+    seenObjects.add(currentObj);
+
+    let newObj = Array.isArray(currentObj) ? [] : {};
+    for (let key in currentObj) {
+      if (Object.hasOwn(currentObj, key)) {
+        let value = currentObj[key];
+        if (typeof value === "function") {
+          continue;
+        } else if (typeof value === "object") {
+          value = helper(value);
         }
-      } else {
-        output[key] = object[key];
+        newObj[key] = value;
       }
     }
-  });
-  return output;
+    return newObj;
+  }
+
+  return helper(obj);
 }
