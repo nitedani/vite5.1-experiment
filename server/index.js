@@ -24,3 +24,9 @@ app.get("*", async (req, res) => {
 app.listen(3000, () => {
   console.log("listening on http://localhost:3000");
 });
+
+
+// Globals are reset on file changes
+console.log("someGlobal before", global.someGlobal);
+global.someGlobal = 22;
+console.log("someGlobal after", global.someGlobal);
