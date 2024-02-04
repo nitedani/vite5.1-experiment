@@ -1,8 +1,8 @@
-import { createServer } from "vite";
 import react from "@vitejs/plugin-react";
 import { createBirpc } from "birpc";
-import { SHARE_ENV, Worker } from "worker_threads";
 import http from "http";
+import { createServer } from "vite";
+import { SHARE_ENV, Worker } from "worker_threads";
 
 const entryPath = "./server/index.js";
 const workerPath = "./worker.js";
@@ -14,23 +14,39 @@ async function start() {
   const vite = await createServer({
     appType: "custom",
     server: { middlewareMode: true },
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        async handleHotUpdate(ctx) {
+          if (ctx.modules.some((m) => entryDeps.has(m.id))) {
+            await restartWorker();
+          }
+        },
+      },
+    ],
   });
   const httpServer = http.createServer(vite.middlewares);
   httpServer.listen(httpPort);
 
   let worker;
-
+  let entryDeps;
   async function restartWorker() {
     if (worker) {
       await worker.terminate();
     }
 
     worker = new Worker(workerPath, { env: SHARE_ENV });
+    entryDeps = new Set();
 
     const rpc = createBirpc(
       {
-        fetchModule: vite.ssrFetchModule,
+        fetchModule: async (id, importer) => {
+          const result = await vite.ssrFetchModule(id, importer);
+          if (result.file) {
+            entryDeps.add(result.file);
+          }
+          return result;
+        },
       },
       {
         post: (data) => worker.postMessage(data),
@@ -42,16 +58,6 @@ async function start() {
 
     await rpc.start(vite.config.root, entryPath, httpPort);
   }
-
-  const hmrChannel = vite.hot.channels.find((c) => c.name === "ws");
-  const originalSend = hmrChannel.send.bind(hmrChannel);
-  hmrChannel.send = async (payload) => {
-    if (payload.type === "full-reload") {
-      await restartWorker();
-    }
-
-    originalSend(payload);
-  };
 
   restartWorker();
 }

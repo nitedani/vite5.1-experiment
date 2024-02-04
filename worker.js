@@ -1,8 +1,8 @@
-import { ESModulesRunner, ViteRuntime } from "vite/runtime";
 import { createBirpc } from "birpc";
-import { parentPort } from "worker_threads";
 import http from "http";
 import { Readable } from "stream";
+import { ESModulesRunner, ViteRuntime } from "vite/runtime";
+import { parentPort } from "worker_threads";
 
 const rpc = createBirpc(
   { start },
@@ -19,7 +19,7 @@ async function start(root, entry, httpPort) {
   patchHttp(httpPort);
   const runtime = new ViteRuntime(
     {
-      fetchModule: (id, importer) => rpc.fetchModule(id, importer),
+      fetchModule: rpc.fetchModule,
       root,
       hmr: false,
     },
@@ -30,7 +30,7 @@ async function start(root, entry, httpPort) {
 }
 
 function patchHttp(httpPort) {
-  global.proxyReq = async (req) => {
+  global.__proxyReq = async (req) => {
     delete req.headers["if-none-match"];
     const result = await fetch(`http://127.0.0.1:${httpPort}${req.url}`, {
       headers: req.headers,
@@ -45,7 +45,7 @@ function patchHttp(httpPort) {
       const listeners = httpServer.listeners("request");
       httpServer.removeAllListeners("request");
       httpServer.on("request", async (req, res) => {
-        const result = await proxyReq(req);
+        const result = await __proxyReq(req);
         if (result.ok) {
           res.statusCode = result.status;
           for (const [k, v] of result.headers) {
