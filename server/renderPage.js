@@ -11,7 +11,7 @@ async function renderPage(req) {
       body.pipe(writable);
     },
     body: result.text.bind(result),
-    headers: result.headers,
+    headers: Array.from(result.headers),
     statusCode: result.status,
     contentType: result.headers["content-type"],
   };
