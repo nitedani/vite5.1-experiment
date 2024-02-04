@@ -1,7 +1,10 @@
 import express from "express";
 import { renderPage } from "vike/server";
+import { two } from "./two";
 
 const app = express();
+
+two()
 
 app.get("/api", (req, res) => {
   res.send("Hello from express api!");

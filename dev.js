@@ -46,13 +46,7 @@ async function start() {
 
     rpc = createBirpc(
       {
-        fetchModule: async (id, importer) => {
-          const result = await vite.ssrFetchModule(id, importer);
-          if (result.file) {
-            entryDeps.add(result.file);
-          }
-          return result;
-        },
+        fetchModule: vite.ssrFetchModule,
         moduleGraphResolveUrl(url) {
           return vite.moduleGraph.resolveUrl(url);
         },
