@@ -11,6 +11,13 @@ const rpc = createBirpc(
   {
     start,
     deleteByModuleId: (mod) => runtime.moduleCache.deleteByModuleId(mod),
+    invalidateDepTree: (mods) => {
+      const shouldRestart = mods.some(
+        (m) => runtime.moduleCache.get(m).evaluated
+      );
+      runtime.moduleCache.invalidateDepTree(mods);
+      return shouldRestart;
+    },
   },
   {
     post: (data) => parentPort.postMessage(data),

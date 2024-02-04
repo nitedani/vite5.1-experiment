@@ -21,7 +21,9 @@ async function start() {
       vike(),
       {
         async handleHotUpdate(ctx) {
-          if (ctx.modules.some((m) => entryDeps.has(m.id))) {
+          const mods = ctx.modules.map((m) => m.id).filter(Boolean);
+          const shouldRestart = await rpc.invalidateDepTree(mods);
+          if (shouldRestart) {
             await restartWorker();
           }
         },
@@ -32,6 +34,7 @@ async function start() {
   const httpServer = http.createServer(vite.middlewares);
   httpServer.listen(httpPort);
 
+  let rpc;
   let worker;
   let entryDeps;
   async function restartWorker() {
@@ -42,7 +45,7 @@ async function start() {
     worker = new Worker(workerPath, { env: SHARE_ENV });
     entryDeps = new Set();
 
-    const rpc = createBirpc(
+    rpc = createBirpc(
       {
         fetchModule: async (id, importer) => {
           const result = await vite.ssrFetchModule(id, importer);
