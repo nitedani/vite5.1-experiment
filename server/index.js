@@ -1,5 +1,5 @@
 import express from "express";
-import { renderPage } from "./renderPage";
+import { renderPage } from "vike/server";
 
 const app = express();
 
@@ -8,7 +8,13 @@ app.get("/api", (req, res) => {
 });
 
 app.get("*", async (req, res) => {
-  const httpResponse = await renderPage();
+  const pageContextInit = {
+    urlOriginal: req.originalUrl,
+    req,
+    res,
+    userAgent: req.headers["user-agent"],
+  };
+  const { httpResponse } = await renderPage(pageContextInit);
   const { statusCode, headers } = httpResponse;
   headers.forEach(([name, value]) => res.setHeader(name, value));
   res.status(statusCode);
