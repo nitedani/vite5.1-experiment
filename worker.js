@@ -19,14 +19,11 @@ const rpc = createBirpc(
           importers.add(importerInner);
         }
       }
-
-      if (Array.from(importers).some((i) => i.includes("virtual:vike"))) {
-        return false;
-      }
-      const shouldRestart = mods.some(
-        (m) => runtime.moduleCache.get(m).evaluated
-      );
+      const shouldRestart =
+        !Array.from(importers).some((i) => !i.startsWith("/")) &&
+        mods.some((m) => runtime.moduleCache.get(m).evaluated);
       runtime.moduleCache.invalidateDepTree(mods);
+
       return shouldRestart;
     },
   },
