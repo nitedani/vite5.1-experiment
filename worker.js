@@ -3,7 +3,6 @@ import http from "http";
 import { Readable } from "stream";
 import { ESModulesRunner, ViteRuntime } from "vite/runtime";
 import { parentPort } from "worker_threads";
-import { stringify, parse } from "devalue";
 
 let runtime;
 
@@ -31,8 +30,8 @@ const rpc = createBirpc(
   {
     post: (data) => parentPort.postMessage(data),
     on: (data) => parentPort.on("message", data),
-    serialize: (v) => stringify(v),
-    deserialize: (v) => parse(v),
+    serialize: (v) => JSON.stringify(v),
+    deserialize: (v) => JSON.parse(v),
   }
 );
 

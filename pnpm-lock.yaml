@@ -16,9 +16,6 @@ dependencies:
   birpc:
     specifier: ^0.2.15
     version: 0.2.15
-  devalue:
-    specifier: ^4.3.2
-    version: 4.3.2
   express:
     specifier: ^4.18.2
     version: 4.18.2
@@ -884,10 +881,6 @@ packages:
   /destroy@1.2.0:
     resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
-    dev: false
-
-  /devalue@4.3.2:
-    resolution: {integrity: sha512-KqFl6pOgOW+Y6wJgu80rHpo2/3H07vr8ntR9rkkFIRETewbf5GaYYcakYfiKz89K+sLsuPkQIZaXDMjUObZwWg==}
     dev: false
 
   /ee-first@1.1.1:

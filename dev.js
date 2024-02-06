@@ -4,7 +4,6 @@ import http from "http";
 import { createServer } from "vite";
 import { SHARE_ENV, Worker } from "worker_threads";
 import vike from "vike/plugin";
-import { stringify, parse } from "devalue";
 
 const entryPath = "./server/index.js";
 const workerPath = "./worker.js";
@@ -60,8 +59,8 @@ async function start() {
       {
         post: (data) => worker.postMessage(data),
         on: (data) => worker.on("message", data),
-        serialize: (v) => stringify(v),
-        deserialize: (v) => parse(v),
+        serialize: (v) => JSON.stringify(v),
+        deserialize: (v) => JSON.parse(v),
       }
     );
 
