@@ -13,15 +13,16 @@ const rpc = createBirpc(
     deleteByModuleId: (mod) => runtime.moduleCache.deleteByModuleId(mod),
     invalidateDepTree: (mods) => {
       const importers = new Set(mods);
+      let evaluated = false;
       for (let importer of importers) {
         importer = runtime.moduleCache.get(importer);
+        evaluated = evaluated || importer.evaluated;
         for (const importerInner of importer.importers) {
           importers.add(importerInner);
         }
       }
       const shouldRestart =
-        !Array.from(importers).some((i) => !i.startsWith("/")) &&
-        mods.some((m) => runtime.moduleCache.get(m).evaluated);
+        evaluated && !Array.from(importers).some((i) => !i.startsWith("/"));
       runtime.moduleCache.invalidateDepTree(mods);
 
       return shouldRestart;
